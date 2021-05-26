@@ -1,4 +1,4 @@
-package com.example.aquaticmusicplayer
+package com.aquaticbasketweaver.aquaticmusicplayer
 
 import org.junit.Test
 

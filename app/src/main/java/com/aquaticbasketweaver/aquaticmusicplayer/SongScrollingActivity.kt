@@ -1,31 +1,35 @@
-package com.example.aquaticmusicplayer
+package com.aquaticbasketweaver.aquaticmusicplayer
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
-import androidx.appcompat.app.ActionBar
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+const val FULL_SCREEN_PLAYER_MESSAGE = "com.aquaticbasketweaver.aquaticmusicplayer.FULL_SCREEN_PLAYER_MESSAGE"
+
+class SongItemViewHolder(val textView: TextView): RecyclerView.ViewHolder(textView)
 
 class SongAdapter: RecyclerView.Adapter<SongItemViewHolder>() {
-    var data = listOf<String>()
-        // May need this piece of code later if list doesn't update
-//        set(value) {
-//            data = value
-//            notifyDataSetChanged()
-//        }
+    var data = listOf<SongFileGetter.SongInfo>()
 
     override fun getItemCount() = data.size
     override fun onBindViewHolder(holder: SongItemViewHolder, position: Int) {
         val item = data[position]
-        holder.textView.text = item
+        holder.textView.text = item.title
+        holder.textView.setOnClickListener(View.OnClickListener {
+            Log.d("DEBUG", "clicked thing is: ${item.title}")
+            val intent = Intent(holder.textView.context, FullScreenPlayerActivity::class.java).apply {
+                putExtra(FULL_SCREEN_PLAYER_MESSAGE, "stuff")
+            }
+            startActivity(holder.textView.context, intent, null)
+        })
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongItemViewHolder {
@@ -38,19 +42,13 @@ class SongAdapter: RecyclerView.Adapter<SongItemViewHolder>() {
 }
 
 class SongScrollingActivity : AppCompatActivity() {
-
-    // TODO: make this actually get songs from a file
-    private fun getSongs(): List<String> {
-        val songs = mutableListOf<String>()
-        for (i in 1..100) {
-            songs.add("Song ${i}")
-        }
-        return songs
-    }
+    private val songFileGetter = SongFileGetter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_scrolling)
+
+        val songInfoList = songFileGetter.getAllSongs(this, contentResolver)
 
         val scrollType = intent.getStringExtra(SONG_MESSAGE)
         actionBar.apply {
@@ -62,19 +60,7 @@ class SongScrollingActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.songRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         val songAdapter = SongAdapter()
-        songAdapter.data = getSongs()
+        songAdapter.data = songInfoList
         recyclerView.adapter = songAdapter
-
-        // Add songs to the song list
-//        for (i in 1..50) {
-//            val buttonView = Button(this).apply {
-//                text = "Song ${i}"
-//                height = 56
-//                setOnClickListener {
-//                    println("TODO: select the song to play, and go into activity")
-//                }
-//            }
-//            songList.addView(buttonView)
-//        }
     }
 }
