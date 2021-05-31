@@ -25,8 +25,9 @@ class SongAdapter: RecyclerView.Adapter<SongItemViewHolder>() {
         holder.textView.text = item.title
         holder.textView.setOnClickListener(View.OnClickListener {
             Log.d("DEBUG", "clicked thing is: ${item.title}")
+            MediaPlayerSingleton.chooseSong(holder.textView.context, item.id)
             val intent = Intent(holder.textView.context, FullScreenPlayerActivity::class.java).apply {
-                putExtra(FULL_SCREEN_PLAYER_MESSAGE, "stuff")
+                putExtra(FULL_SCREEN_PLAYER_MESSAGE, item)
             }
             startActivity(holder.textView.context, intent, null)
         })
@@ -56,7 +57,6 @@ class SongScrollingActivity : AppCompatActivity() {
         }
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Recycler view has off screen things unloaded and can pick between list, grid, etc.
         val recyclerView = findViewById<RecyclerView>(R.id.songRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         val songAdapter = SongAdapter()

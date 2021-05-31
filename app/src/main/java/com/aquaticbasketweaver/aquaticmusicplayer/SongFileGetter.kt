@@ -12,10 +12,11 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import java.io.Serializable
 
 
 class SongFileGetter {
-    data class SongInfo(val title: String, val artist: String, val album: String, val uri: Uri)
+    data class SongInfo(val title: String, val artist: String, val album: String, val id: String) : Serializable
 
     fun getAllSongs (context : Context, contentResolver: ContentResolver): List<SongInfo> {
         val songInfoList: MutableList<SongInfo> = mutableListOf()
@@ -24,6 +25,7 @@ class SongFileGetter {
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media._ID
         )
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
@@ -41,13 +43,11 @@ class SongFileGetter {
                 val artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
                 val album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
                 val id = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID))
-                val uri = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
                 Log.d("DEBUG", "title $title \n " +
                         "artist $artist \n " +
                         "album $album \n " +
-                        "id $id \n " +
-                        "URI $uri")
-                songInfoList.add(SongInfo(title, artist, album, uri))
+                        "id $id")
+                songInfoList.add(SongInfo(title, artist, album, id))
             }
             cursor.close()
         } else {
